@@ -19,21 +19,16 @@
         </thead>
         <tbody>
             <?php
-            // Consulta compleja para obtener estado calculado
             $sql = "
                 SELECT 
                     r.id_reserva,
                     CONCAT(t.nombre, ' ', t.apellido) as cliente,
                     h.nombre as hotel,
-                    r.fecha_hora_desde,
-                    r.fecha_hora_hasta,
+                    th.descripcion as tipo_habitacion,
+                    r.fecha_desde,
+                    r.fecha_hasta,
                     r.cantidad_personas,
-                    r.monto_total,
-                    CASE 
-                        WHEN NOW() < r.fecha_hora_desde THEN 'Pendiente'
-                        WHEN NOW() BETWEEN r.fecha_hora_desde AND r.fecha_hora_hasta THEN 'En Proceso'
-                        ELSE 'Cerrado'
-                    END as estatus
+                    r.monto_total
                 FROM reservas r
                 JOIN turistas t ON r.id_turista = t.id_turista
                 JOIN habitaciones hab ON r.id_habitacion = hab.id_habitacion
@@ -44,19 +39,29 @@
             
             $stmt = $pdo->query($sql);
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $hoy = date('Y-m-d');
+                $estatus = '';
                 $class = '';
-                if($row['estatus'] == 'Pendiente') $class = 'status-pendiente';
-                if($row['estatus'] == 'En Proceso') $class = 'status-proceso';
-                if($row['estatus'] == 'Cerrado') $class = 'status-cerrado';
-
+                
+                if ($hoy < $row['fecha_desde']) {
+                    $estatus = 'Pendiente';
+                    $class = 'status-pendiente';
+                } elseif ($hoy > $row['fecha_hasta']) {
+                    $estatus = 'Cerrado';
+                    $class = 'status-cerrado';
+                } else {
+                    $estatus = 'En Proceso';
+                    $class = 'status-proceso';
+                }
+                
                 echo "<tr>";
                 echo "<td>{$row['id_reserva']}</td>";
                 echo "<td>{$row['cliente']}</td>";
-                echo "<td>{$row['hotel']}</td>";
-                echo "<td>Desde: " . date('d/m/Y', strtotime($row['fecha_hora_desde'])) . "<br>Hasta: " . date('d/m/Y', strtotime($row['fecha_hora_hasta'])) . "</td>";
+                echo "<td>{$row['hotel']}<br><small>{$row['tipo_habitacion']}</small></td>";
+                echo "<td>Entrada: " . date('d/m/Y', strtotime($row['fecha_desde'])) . "<br>Salida: " . date('d/m/Y', strtotime($row['fecha_hasta'])) . "</td>";
                 echo "<td>{$row['cantidad_personas']}</td>";
                 echo "<td>$ " . number_format($row['monto_total'], 2) . "</td>";
-                echo "<td><span class='status-badge $class'>{$row['estatus']}</span></td>";
+                echo "<td><span class='status-badge $class'>{$estatus}</span></td>";
                 echo "</tr>";
             }
             ?>

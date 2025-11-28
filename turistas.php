@@ -1,14 +1,42 @@
 <?php 
 include 'layout_top.php'; 
 
-// Insertar Turista
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crear_turista'])) {
-    $stmt = $pdo->prepare("INSERT INTO turistas (nombre, apellido, telefono, correo, ubicacion) VALUES (?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO turistas (id_turista, nombre, apellido, telefono, correo, ubicacion) VALUES (?, ?, ?, ?, ?, ?)");
     try {
-        $stmt->execute([$_POST['nombre'], $_POST['apellido'], $_POST['telefono'], $_POST['correo'], $_POST['ubicacion']]);
-        echo "<script>alert('Turista registrado correctamente');</script>";
+        $stmt->execute([$_POST['identificacion'], $_POST['nombre'], $_POST['apellido'], $_POST['telefono'], $_POST['correo'], $_POST['ubicacion']]);
+        echo "<script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Turista registrado',
+                text: 'Turista registrado correctamente'
+            });
+        </script>";
     } catch (PDOException $e) {
-        echo "<script>alert('Error: " . $e->getMessage() . "');</script>";
+        $msg = 'Ocurrió un error al guardar el turista.';
+        $err = $e->getMessage();
+        if (strpos($err, 'Duplicate') !== false || strpos($err, 'duplicate') !== false || $e->getCode() == 23000) {
+            if (stripos($err, 'id_turista') !== false || stripos($err, 'PRIMARY') !== false || stripos($err, 'identificacion') !== false) {
+                $msg = 'Ya hay un usuario con esta identificación.';
+            } elseif (stripos($err, 'telefono') !== false) {
+                $msg = 'Ya hay un usuario con este teléfono.';
+            } elseif (stripos($err, 'correo') !== false) {
+                $msg = 'Ya hay un usuario con este correo.';
+            } else {
+                $msg = 'Ya existe un registro con algunos de los datos proporcionados.';
+            }
+        } else {
+            $msg = 'Error: ' . addslashes($e->getMessage());
+        }
+
+        echo "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al guardar',
+                text: '{$msg}'
+            });
+        </script>";
     }
 }
 ?>
@@ -37,9 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crear_turista'])) {
                 <label>Correo</label>
                 <input type="email" name="correo" class="form-control" required>
             </div>
-            <div class="form-group" style="grid-column: span 2;">
+            <div class="form-group">
                 <label>Ubicación</label>
                 <input type="text" name="ubicacion" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Identificación</label>
+                <input type="text" name="identificacion" class="form-control" required>
             </div>
         </div>
         <button type="submit" name="crear_turista" class="btn btn-primary">Guardar Turista</button>
@@ -73,4 +105,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crear_turista'])) {
     </table>
 </div>
 
-<?php include 'layout_bottom.php'; ?>
+<?php include'layout_bottom.php';?>

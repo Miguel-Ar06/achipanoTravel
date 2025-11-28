@@ -1,8 +1,8 @@
 <?php
 $host = 'localhost';
 $dbname = 'Achipano_Travel';
-$username = 'root'; // Cambia esto si tu usuario es diferente
-$password = '';     // Cambia esto si tienes contraseña
+$username = 'root'; 
+$password = '';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);

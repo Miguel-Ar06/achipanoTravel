@@ -41,7 +41,7 @@ CREATE TABLE tarifas(
     id_tarifa INT PRIMARY KEY AUTO_INCREMENT,
     multiplo_precio DECIMAL(4,2) NOT NULL , -- Este se multiplica por el precio base , ej: la fecha en sunsol del dia x al dia y cuesta el doble para habitaciones individuales
     inicio_temporada DATE NOT NULL,
-    fin_temporada DATE NOT NULL CHECK( fin_temporada >= inicio_temporada ),
+    fin_temporada DATE NOT NULL ,
 
     id_tipo_habitacion INT NOT NULL,
 

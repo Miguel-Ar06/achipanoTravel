@@ -9,16 +9,18 @@
     <table class="display" style="width:100%; border-collapse: collapse;">
         <tr style="background:#eee; text-align:left;"><th>Hotel</th><th>Total Reservas</th></tr>
         <?php
-        $sql = "SELECT h.nombre, COUNT(r.id_reserva) as total 
+        // CONSULTA DIRECTA
+        $sql = "SELECT h.nombre as hotel, COUNT(r.id_reserva) as total_reservas 
                 FROM reservas r 
                 JOIN habitaciones hab ON r.id_habitacion = hab.id_habitacion
                 JOIN tipo_habitaciones th ON hab.id_tipo_habitacion = th.id_tipo_habitacion
                 JOIN hoteles h ON th.id_hotel = h.id_hotel
                 GROUP BY h.nombre
-                ORDER BY total DESC";
+                ORDER BY total_reservas DESC";
+        
         $rows = $pdo->query($sql)->fetchAll();
         foreach($rows as $r) {
-            echo "<tr><td style='padding:8px;'>{$r['nombre']}</td><td style='padding:8px;'>{$r['total']}</td></tr>";
+            echo "<tr><td style='padding:8px;'>{$r['hotel']}</td><td style='padding:8px;'>{$r['total_reservas']}</td></tr>";
         }
         ?>
     </table>
@@ -29,14 +31,18 @@
     <table class="display" style="width:100%; border-collapse: collapse;">
         <tr style="background:#eee; text-align:left;"><th>Cliente</th><th>Total Reservas</th><th>Monto Gastado</th></tr>
         <?php
-        $sql = "SELECT CONCAT(t.nombre, ' ', t.apellido) as cliente, COUNT(r.id_reserva) as total, SUM(r.monto_total) as dinero 
+        $sql = "SELECT CONCAT(t.nombre, ' ', t.apellido) as cliente, 
+                       COUNT(r.id_reserva) as total_reservas, 
+                       SUM(r.monto_total) as monto_gastado 
                 FROM reservas r 
                 JOIN turistas t ON r.id_turista = t.id_turista
                 GROUP BY t.id_turista
-                ORDER BY total DESC LIMIT 5";
+                ORDER BY total_reservas DESC 
+                LIMIT 5";
+        
         $rows = $pdo->query($sql)->fetchAll();
         foreach($rows as $r) {
-            echo "<tr><td style='padding:8px;'>{$r['cliente']}</td><td style='padding:8px;'>{$r['total']}</td><td style='padding:8px;'>$ ".number_format($r['dinero'],2)."</td></tr>";
+            echo "<tr><td style='padding:8px;'>{$r['cliente']}</td><td style='padding:8px;'>{$r['total_reservas']}</td><td style='padding:8px;'>$ ".number_format($r['monto_gastado'],2)."</td></tr>";
         }
         ?>
     </table>
@@ -53,10 +59,12 @@
     <?php if(isset($_GET['f1'])): ?>
         <ul>
         <?php
+        // CONSULTA DIRECTA CON COMPARATIVAS DE FECHA
         $sql = "SELECT r.id_reserva, r.fecha_registro, t.nombre 
                 FROM reservas r 
                 JOIN turistas t ON r.id_turista = t.id_turista
-                WHERE DATE(r.fecha_registro) BETWEEN ? AND ?";
+                WHERE r.fecha_registro >= ? AND r.fecha_registro <= ?";
+        
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$_GET['f1'], $_GET['f2']]);
         while($r = $stmt->fetch()){
