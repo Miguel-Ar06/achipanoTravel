@@ -12,8 +12,8 @@
 <body>
     <div class="sidebar">
         <div class="logo-area">
-            <div class="logo-placeholder">✈️</div>
-            <h2>AchipanoTravel</h2>
+            <div class="logo-placeholder"><img src="public/media/logo.png" style="transform: scale(0.3);"></div>
+            <h2>AchípanoTravel</h2>
             <small>Panel de Agente</small>
         </div>
         <ul class="nav-links">
