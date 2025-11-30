@@ -134,7 +134,7 @@ if (isset($_POST['calcular_presupuesto'])) {
                 <select name="turista_seleccionado" class="form-control" required>
                     <?php foreach($turistas as $t): ?>
                         <option value="<?= $t['id_turista'] ?>" <?= (isset($_POST['turista_seleccionado']) && $_POST['turista_seleccionado'] == $t['id_turista']) ? 'selected' : '' ?>>
-                            <?= $t['nombre'] . ' ' . $t['apellido'] ?>
+                            <?= $t['nombre'] . ' ' . $t['apellido'] . ' ('. $t['id_turista'] . ')' ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -142,15 +142,20 @@ if (isset($_POST['calcular_presupuesto'])) {
             </div>
             <div class="form-group">
                 <label>Cantidad Personas</label>
-                <input type="number" name="cantidad_personas" class="form-control" min="1" value="<?= $_POST['cantidad_personas'] ?? 1 ?>" required>
+                <select name="cantidad_personas" id="cantidad_personas" class="form-control" required>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>Fecha Entrada</label>
-                <input type="date" name="fecha_inicio" class="form-control" value="<?= $_POST['fecha_inicio'] ?? '' ?>" required>
+                <input type="date" name="fecha_inicio" class="form-control fecha_filtro_index" value="<?= $_POST['fecha_inicio'] ?? '' ?>" required>
             </div>
             <div class="form-group">
                 <label>Fecha Salida</label>
-                <input type="date" name="fecha_fin" class="form-control" value="<?= $_POST['fecha_fin'] ?? '' ?>" required>
+                <input type="date" name="fecha_fin" class="form-control fecha_filtro_index" value="<?= $_POST['fecha_fin'] ?? '' ?>" required>
             </div>
         </div>
         <button type="submit" name="calcular_presupuesto" class="btn btn-primary">Buscar Ofertas</button>
