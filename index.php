@@ -13,8 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_reserva']))
         $monto_base = $_POST['monto_calculado'];
         $traslado = floatval($_POST['costo_traslado']);
         $total_final = $monto_base + $traslado;
-        
-        // CONSULTA DIRECTA PARA BUSCAR HABITACIÓN DISPONIBLE
         $sql_habitacion = "
             SELECT h.id_habitacion 
             FROM habitaciones h
