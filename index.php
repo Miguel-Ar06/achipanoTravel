@@ -83,7 +83,7 @@ if (isset($_POST['calcular_presupuesto'])) {
         LEFT JOIN tarifas t ON th.id_tipo_habitacion = t.id_tipo_habitacion 
             AND t.inicio_temporada <= ? 
             AND t.fin_temporada >= ?
-        WHERE th.cantidad_personas >= ?
+        WHERE th.cantidad_personas = ?
         LIMIT 4
     ";
     
