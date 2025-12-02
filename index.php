@@ -53,7 +53,7 @@ $turistas = $pdo->query("SELECT * FROM turistas")->fetchAll();
 $resultados_presupuesto = [];
 $show_results = false;
 
-
+// panel generador de presupuestos
 if (isset($_POST['calcular_presupuesto'])) {
     $id_turista = $_POST['turista_seleccionado'];
     $f_inicio = new DateTime($_POST['fecha_inicio']);
@@ -65,6 +65,7 @@ if (isset($_POST['calcular_presupuesto'])) {
     $dias = $noches + 1; 
     if ($noches < 1) $noches = 1;
 
+    // query para toda la info de los hoteles, tipos de habitaciones y tarifas que coinciden 
     $sql = "
         SELECT 
             h.nombre as nombre_hotel,
@@ -86,10 +87,11 @@ if (isset($_POST['calcular_presupuesto'])) {
     // Convertir DateTime a string para la consulta SQL
     $f_inicio_str = $f_inicio->format('Y-m-d');
     $f_fin_str = $f_fin->format('Y-m-d');
-    
+   
+    // preparamos las consultas pa que no nos inyecten una sqlyuca
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$f_inicio_str, $f_fin_str, $personas]);
-    $opciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $opciones = $stmt->fetchAll(PDO::FETCH_ASSOC); // obtenemos todas las habitaciones que coinciden en los hoteles
     
     $sql_disponibilidad = "
         SELECT COUNT(DISTINCT h.id_habitacion) as disponibles
@@ -102,6 +104,8 @@ if (isset($_POST['calcular_presupuesto'])) {
             AND dh.estado = 'reservada')";
 
     $stmt_disp = $pdo->prepare($sql_disponibilidad);
+
+    // buscar disponibilidad de cada tipo de habitacion de las que coinciden
     foreach ($opciones as $matenme => $opt) {
         $stmt_disp->execute([$opt['id_tipo_habitacion'], $f_inicio_str, $f_fin_str]);
         $result = $stmt_disp->fetch(PDO::FETCH_ASSOC);
@@ -111,6 +115,7 @@ if (isset($_POST['calcular_presupuesto'])) {
             $opciones[$matenme]['disponibles'] = 0;
         }
     }
+
     $show_results = true;
 }
 ?>
@@ -161,13 +166,13 @@ if (isset($_POST['calcular_presupuesto'])) {
         <h3>Resumen de Solicitud</h3>
         <p><strong>Periodo:</strong> <?= $f_inicio->format('d/m/Y') ?> al <?= $f_fin->format('d/m/Y') ?></p>
         <p><strong>Duración:</strong> <?= $dias ?> Días / <?= $noches ?> Noches</p>
-        <p><strong>Pax:</strong> <?= $personas ?> Personas</p>
+        <p><strong>Para:</strong> <?= $personas ?> Personas</p>
     </div>
 
     <h3>Presupuestos Disponibles (Top 4)</h3>
     <div class="budget-grid">
         <?php foreach ($opciones as $opt): 
-            $precio_unitario = $opt['precio_base'] * $opt['multiplicador'];
+            $precio_unitario = $opt['precio_base'] * $opt['multiplicador']; // multiplicador acorde a temporada
             $total = ($precio_unitario * $noches) * $personas;
             
             if($opt['disponibles'] > 2) {
@@ -198,7 +203,8 @@ if (isset($_POST['calcular_presupuesto'])) {
             <hr>
             <p><strong>Habitación:</strong> <?= $opt['tipo_hab'] ?></p>
             <p>Para: <?= $opt['cantidad_personas'] ?> personas</p>
-            <p>Precio base: $<?= number_format($opt['precio_base'], 2) ?></p>
+            <p style="margin-bottom: 0;">Precio base: $<?= number_format($opt['precio_base'], 2) ?></P> 
+            <p style="color: gray; font-size: 0.8rem; margin-top: 0;">(x<?= number_format($opt['multiplicador'],2)?> por temporada)</p>
             
             
             <div class="price-tag">$<?= number_format($total, 2) ?></div>

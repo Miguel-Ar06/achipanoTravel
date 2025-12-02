@@ -25,16 +25,7 @@
             <li><a href="index.php">Presupuesto</a></li>
             <li><a href="reservas.php">Reservas</a></li>
             <li><a href="reportes.php"> Reportes</a></li>
-            <li><a href="#" onclick="perdonMoguel()"> Hoteles</a></li>
-            <script>
-                function perdonMoguel(){
-                    Swal.fire({
-                        title: "Funcion en proceso profe.",
-                        text: "Perdon Moguel",
-                        icon: "error"
-                        });
-                }
-            </script>
+            <li><a href="hoteles.php"> Hoteles</a></li>
         </ul>
     </div>
     <div class="main-content">

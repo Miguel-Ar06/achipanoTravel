@@ -100,10 +100,9 @@ ALTER TABLE reservas ADD CONSTRAINT ck_reserva_fecha_hora CHECK (fecha_hasta > f
 
 ALTER TABLE tarifas ADD CONSTRAINT ck_inicio_fin_temporada CHECK (fin_temporada >= inicio_temporada );
 
---
+-- El Misero Trigger
 
-El Misero Trigger
-
+DELIMITER //
 CREATE TRIGGER after_insert_reserva
 AFTER INSERT ON reservas
 FOR EACH ROW
@@ -119,7 +118,7 @@ BEGIN
         SET fecha_actual = fecha_actual + INTERVAL 1 DAY;
     END WHILE;
 END
-
+DELIMITER ;
 
 
 

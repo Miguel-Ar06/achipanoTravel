@@ -69,7 +69,7 @@ tr{
     background-color: var(--primary-dark);
 }
 
-/* Main Content */
+/* Contenido principal */
 .main-content {
     flex: 1;
     padding: 30px;
@@ -83,7 +83,7 @@ header {
     color: var(--dark);
 }
 
-/* Forms & Cards */
+/* Forms y tarjetas */
 .card {
     background: var(--white);
     padding: 20px;
@@ -130,7 +130,7 @@ header {
     background-color: var(--primary-dark);
 }
 
-/* Budget Cards */
+/* tarjetas de presupuesto */
 .budget-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -158,7 +158,7 @@ header {
     margin: 10px 0;
 }
 
-/* DataTables Overrides */
+/* DataTable */
 table.dataTable thead th {
     background-color: var(--primary) !important;
     color: white !important;
