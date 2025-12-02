@@ -1,6 +1,6 @@
 <?php include 'layout_top.php'; 
 
-// --- Lógica de Procesamiento de Reserva Final ---
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_reserva'])) {
     try {
         $pdo->beginTransaction();
@@ -34,7 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_reserva']))
             throw new Exception("No hay habitaciones disponibles para las fechas seleccionadas.");
         }
 
-        // INSERTAR RESERVA
         $sql = "INSERT INTO reservas (fecha_desde, fecha_hasta, cantidad_personas, monto_total, id_turista, id_habitacion) 
                 VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $pdo->prepare($sql);
@@ -49,26 +48,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_reserva']))
     }
 }
 
-// --- Variables para el formulario ---
+
 $turistas = $pdo->query("SELECT * FROM turistas")->fetchAll();
 $resultados_presupuesto = [];
 $show_results = false;
 
-// --- Lógica de Cálculo de Presupuesto ---
+
 if (isset($_POST['calcular_presupuesto'])) {
     $id_turista = $_POST['turista_seleccionado'];
     $f_inicio = new DateTime($_POST['fecha_inicio']);
     $f_fin = new DateTime($_POST['fecha_fin']);
     $personas = intval($_POST['cantidad_personas']);
-    
-    // Calcular días y noches (MANTENIENDO DateTime)
+
     $interval = $f_inicio->diff($f_fin);
-    $noches = $interval->days; // Diferencia en días naturales = noches de hotel
-    $dias = $noches + 1; // Generalmente se cuenta el día de salida como uso de instalaciones hasta check-out
-    
+    $noches = $interval->days; 
+    $dias = $noches + 1; 
     if ($noches < 1) $noches = 1;
 
-    // CONSULTA DIRECTA PARA PRESUPUESTOS
     $sql = "
         SELECT 
             h.nombre as nombre_hotel,
@@ -95,26 +91,26 @@ if (isset($_POST['calcular_presupuesto'])) {
     $stmt->execute([$f_inicio_str, $f_fin_str, $personas]);
     $opciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // VERIFICAR DISPONIBILIDAD PARA CADA OPCIÓN
-    foreach ($opciones as &$opt) {
-        $sql_disponibilidad = "
-            SELECT COUNT(DISTINCT h.id_habitacion) as disponibles
-            FROM habitaciones h
-            WHERE h.id_tipo_habitacion = ?
-            AND h.id_habitacion NOT IN (
-                SELECT dh.id_habitacion 
-                FROM disponibilidad_habitaciones dh 
-                WHERE dh.fecha >= ? AND dh.fecha < ?
-                AND dh.estado = 'reservada'
-            )
-        ";
-        
-        $stmt_disp = $pdo->prepare($sql_disponibilidad);
+    $sql_disponibilidad = "
+        SELECT COUNT(DISTINCT h.id_habitacion) as disponibles
+        FROM habitaciones h
+        WHERE h.id_tipo_habitacion = ?
+        AND h.id_habitacion NOT IN (
+            SELECT dh.id_habitacion 
+            FROM disponibilidad_habitaciones dh 
+            WHERE dh.fecha >= ? AND dh.fecha < ?
+            AND dh.estado = 'reservada')";
+
+    $stmt_disp = $pdo->prepare($sql_disponibilidad);
+    foreach ($opciones as $matenme => $opt) {
         $stmt_disp->execute([$opt['id_tipo_habitacion'], $f_inicio_str, $f_fin_str]);
         $result = $stmt_disp->fetch(PDO::FETCH_ASSOC);
-        $opt['disponibles'] = $result['disponibles'];
+        if (isset($result['disponibles'])) {
+            $opciones[$matenme]['disponibles'] = $result['disponibles'];
+        } else {
+            $opciones[$matenme]['disponibles'] = 0;
+        }
     }
-    
     $show_results = true;
 }
 ?>
@@ -204,9 +200,6 @@ if (isset($_POST['calcular_presupuesto'])) {
             <p>Para: <?= $opt['cantidad_personas'] ?> personas</p>
             <p>Precio base: $<?= number_format($opt['precio_base'], 2) ?></p>
             
-            <?php if($opt['multiplicador'] > 1): ?>
-                <p style="color:#e67e22;">⚠️ Tarifa Alta (x<?= $opt['multiplicador'] ?>)</p>
-            <?php endif; ?>
             
             <div class="price-tag">$<?= number_format($total, 2) ?></div>
             
