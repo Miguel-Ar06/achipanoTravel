@@ -51,6 +51,8 @@
         $stmt->execute([$_GET['fecha_inicio_filtro'], $_GET['fecha_fin_filtro']]);
         while($r = $stmt->fetch()){
             echo "<li>Reserva #{$r['id_reserva']} - {$r['nombre']} (Registrada: {$r['fecha_registro']})</li>";
+        } if($stmt->rowCount() == 0){
+            echo "<li>No se encontraron reservas en el rango seleccionado.</li>";
         }
         ?>
         </ul>
