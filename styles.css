@@ -178,3 +178,30 @@ table.dataTable thead th {
      width: 100%;
         height: auto;
 }
+
+.img-hotel{
+    border-radius: 15px;
+    max-height: 15vw;
+    width: auto;
+    margin: 0.5rem;
+}
+
+.galeria{
+    display: flex;
+    overflow-x: auto;
+    
+}
+
+#fullpage {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: contain;
+  background-repeat: no-repeat no-repeat;
+  background-position: center center;
+  background-color: #000000CC;
+}
