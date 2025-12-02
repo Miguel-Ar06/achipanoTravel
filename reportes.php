@@ -10,13 +10,7 @@
         <tr style="background:#eee; text-align:left;"><th>Hotel</th><th>Total Reservas</th></tr>
         <?php
         // CONSULTA DIRECTA
-        $sql = "SELECT h.nombre as hotel, COUNT(r.id_reserva) as total_reservas 
-                FROM reservas r 
-                JOIN habitaciones hab ON r.id_habitacion = hab.id_habitacion
-                JOIN tipo_habitaciones th ON hab.id_tipo_habitacion = th.id_tipo_habitacion
-                JOIN hoteles h ON th.id_hotel = h.id_hotel
-                GROUP BY h.nombre
-                ORDER BY total_reservas DESC";
+        $sql = "SELECT * FROM hoteles_con_mayor_demanda";
         
         $rows = $pdo->query($sql)->fetchAll();
         foreach($rows as $r) {
@@ -31,14 +25,7 @@
     <table class="display" style="width:100%; border-collapse: collapse;">
         <tr style="background:#eee; text-align:left;"><th>Cliente</th><th>Total Reservas</th><th>Monto Gastado</th></tr>
         <?php
-        $sql = "SELECT CONCAT(t.nombre, ' ', t.apellido) as cliente, 
-                       COUNT(r.id_reserva) as total_reservas, 
-                       SUM(r.monto_total) as monto_gastado 
-                FROM reservas r 
-                JOIN turistas t ON r.id_turista = t.id_turista
-                GROUP BY t.id_turista
-                ORDER BY total_reservas DESC 
-                LIMIT 5";
+        $sql = "SELECT * FROM clientes_recurrentes ";
         
         $rows = $pdo->query($sql)->fetchAll();
         foreach($rows as $r) {

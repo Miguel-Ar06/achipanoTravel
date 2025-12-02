@@ -1,0 +1,27 @@
+CREATE PROCEDURE cantidad_De_Habitaciones_DispobiblesXHotelXDias(
+    IN _id_tipo_habitacion INT,
+    IN _fecha_inicio DATE,
+    IN _fecha_fin DATE
+)BEGIN
+    SELECT COUNT(DISTINCT h.id_habitacion) as disponibles FROM habitaciones h
+        WHERE h.id_tipo_habitacion = _id_tipo_habitacion AND h.id_habitacion NOT IN (
+            SELECT dh.id_habitacion FROM disponibilidad_habitaciones dh WHERE dh.fecha >= _fecha_inicio AND dh.fecha < _fecha_fin AND dh.estado = 'reservada');
+end;
+
+CREATE VIEW hoteles_con_mayor_demanda AS(
+    SELECT h.nombre as hotel, COUNT(r.id_reserva) as total_reservas FROM reservas r
+    INNER JOIN habitaciones hab ON r.id_habitacion = hab.id_habitacion
+    INNER JOIN tipo_habitaciones th ON hab.id_tipo_habitacion = th.id_tipo_habitacion
+    INNER JOIN hoteles h ON th.id_hotel = h.id_hotel
+    GROUP BY h.nombre
+    ORDER BY total_reservas DESC
+);
+
+CREATE VIEW clientes_recurrentes AS(
+    SELECT CONCAT(t.nombre, ' ', t.apellido) as cliente,  COUNT(r.id_reserva) as total_reservas,  SUM(r.monto_total) as monto_gastado
+    FROM reservas r
+    INNER JOIN turistas t ON r.id_turista = t.id_turista
+    GROUP BY t.id_turista
+    ORDER BY total_reservas DESC
+    LIMIT 5
+    );
