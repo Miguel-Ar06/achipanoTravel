@@ -153,11 +153,10 @@ if (isset($_POST['calcular_presupuesto'])) {
     <h3>Presupuestos Disponibles (Top 4)</h3>
     <div class="budget-grid">
         <?php foreach ($opciones as $opt): 
-            // Usar el costo total ya calculado
             $total = $opt['costo_total'];
             
             if($opt['disponibles'] > 2) {
-                $color_fondo = '#d4edda';
+                $color_fondo = '#d4edda'; // Dios que asco que entre 3 personas a ninguna se le ocurrio que hacer esto asi era mala idea
                 $icono = '✅';
                 $texto = "Disponible ({$opt['disponibles']} habitaciones)";
                 $puede_reservar = true;
@@ -215,8 +214,11 @@ if (isset($_POST['calcular_presupuesto'])) {
                 <input type="hidden" name="monto_calculado" value="<?= $total ?>">
                 
                 <div class="form-group" style="background: #f8f9fa; padding:10px; border-radius:5px;">
-                    <label>¿Traslado? (Costo Extra)</label>
-                    <input type="number" step="0.01" name="costo_traslado" class="form-control" placeholder="0.00" value="0">
+                    <label>¿Traslado? (Costo Extra 80$)</label>
+                    <input type="checkbox" id="CheckboxTranslado" onchange="actualizarHidden()">
+                    <input type="hidden" id="valorCheckbox" name="costo_traslado" value="0">
+                    
+                <br><br>
                 </div>
 
                 <button type="submit" name="confirmar_reserva" class="btn btn-primary" style="width:100%">

@@ -1,6 +1,6 @@
 <?php include 'layout_top.php'; 
 
-// Contadores simples
+// Matate Moguel
 $turistas = $pdo->query("SELECT COUNT(*) FROM turistas")->fetchColumn();
 $reservas = $pdo->query("SELECT COUNT(*) FROM reservas")->fetchColumn();
 $hoteles = $pdo->query("SELECT COUNT(*) FROM hoteles")->fetchColumn();

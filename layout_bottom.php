@@ -16,5 +16,21 @@
             });
         });
     </script>
+
+    <script>    
+    function actualizarHidden() {
+        const checkbox = document.getElementById('CheckboxTranslado');
+        const hidden = document.getElementById('valorCheckbox');
+        
+        if (checkbox.checked) {
+            hidden.value = 80;
+            console.log('Traslado de $80 añadido al total');
+        } else {
+            hidden.value = 0;
+            console.log('Traslado removido');
+        }
+    }
+</script>
+
 </body>
 </html>
