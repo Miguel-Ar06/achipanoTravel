@@ -9,7 +9,6 @@
     <table class="display" style="width:100%; border-collapse: collapse;">
         <tr style="background:#eee; text-align:left;"><th>Hotel</th><th>Total Reservas</th></tr>
         <?php
-        // CONSULTA DIRECTA
         $sql = "SELECT * FROM hoteles_con_mayor_demanda";
         
         $rows = $pdo->query($sql)->fetchAll();
@@ -38,22 +37,18 @@
 <div class="card">
     <h3>3. Reservas por Fecha</h3>
     <form method="GET" style="margin-bottom:15px; display:flex; gap:10px;">
-        <input type="date" name="f1" class="form-control" required>
-        <input type="date" name="f2" class="form-control" required>
+        <input type="date" name="fecha_inicio_filtro" class="form-control" required>
+        <input type="date" name="fecha_fin_filtro" class="form-control" required>
         <button type="submit" class="btn btn-primary">Filtrar</button>
     </form>
     
-    <?php if(isset($_GET['f1'])): ?>
+    <?php if(isset($_GET['fecha_inicio_filtro'])): ?>
         <ul>
         <?php
-        // CONSULTA DIRECTA CON COMPARATIVAS DE FECHA
-        $sql = "SELECT r.id_reserva, r.fecha_registro, t.nombre 
-                FROM reservas r 
-                JOIN turistas t ON r.id_turista = t.id_turista
-                WHERE r.fecha_registro >= ? AND r.fecha_registro <= ?";
+        $sql = "CALL reservas_X_fechas(?,?)";
         
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$_GET['f1'], $_GET['f2']]);
+        $stmt->execute([$_GET['fecha_inicio_filtro'], $_GET['fecha_fin_filtro']]);
         while($r = $stmt->fetch()){
             echo "<li>Reserva #{$r['id_reserva']} - {$r['nombre']} (Registrada: {$r['fecha_registro']})</li>";
         }

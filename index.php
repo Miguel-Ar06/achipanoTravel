@@ -69,14 +69,8 @@ if (isset($_POST['calcular_presupuesto'])) {
     $opciones = $stmt->fetchAll(PDO::FETCH_ASSOC); // obtenemos todas las habitaciones que coinciden en los hoteles
     
     $sql_disponibilidad = "
-        SELECT COUNT(DISTINCT h.id_habitacion) as disponibles
-        FROM habitaciones h
-        WHERE h.id_tipo_habitacion = ?
-        AND h.id_habitacion NOT IN (
-            SELECT dh.id_habitacion 
-            FROM disponibilidad_habitaciones dh 
-            WHERE dh.fecha >= ? AND dh.fecha < ?
-            AND dh.estado = 'reservada')";
+        CALL cantidad_De_Habitaciones_DispobiblesXHotelXDias(?, ?, ?);
+";
 
     $stmt_disponibilidad = $pdo->prepare($sql_disponibilidad);
 
@@ -94,7 +88,7 @@ if (isset($_POST['calcular_presupuesto'])) {
         
         $stmt_disponibilidad->execute([$opt['id_tipo_habitacion'], $fecha_inicio_compatible, $fecha_fin_compatible]);
         $result = $stmt_disponibilidad->fetch(PDO::FETCH_ASSOC);
-
+        $stmt_disponibilidad->closeCursor();
 
         if (isset($result['disponibles'])) {
             $opciones[$matenme]['disponibles'] = $result['disponibles'];
@@ -188,11 +182,11 @@ if (isset($_POST['calcular_presupuesto'])) {
             </div>
             
             <hr>
-            <p><strong>Habitación:</strong> <?= $opt['tipo_hab'] ?></p>
+            <p><strong>Habitación:</strong> <?= $opt['tipo_habitacion'] ?></p>
             <p>Para: <?= $opt['cantidad_personas'] ?> personas</p>
             <p>Precio base (por noche): $<?= number_format($opt['precio_base'], 2) ?></p>
             
-            <!-- Mostrar las tarifas aplicadas para transparencia -->
+
             <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin: 8px 0; font-size: 0.85em;">
                 <strong>Tarifas aplicadas:</strong><br>
                 <?php 

@@ -4,21 +4,14 @@
 
 function asignar_habitacion_disponible($pdo, $id_tipo_habitacion, $fecha_inicio, $fecha_fin) {
     $sql = "
-        SELECT h.id_habitacion 
-            FROM habitaciones h
-            WHERE h.id_tipo_habitacion = ?
-            AND h.id_habitacion NOT IN (
-                SELECT dh.id_habitacion 
-                FROM disponibilidad_habitaciones dh 
-                WHERE dh.fecha >= ? AND dh.fecha < ?
-                AND dh.estado = 'reservada'
-            )
-            LIMIT 1
+        CALL asignar_habitacion_disponible(?, ?, ?);
     ";
     
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$id_tipo_habitacion, $fecha_inicio, $fecha_fin]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->closeCursor();
+    return $result;
 }
 
 function CostoXfechas($pdo, $id_tipo_habitacion, $precio_base, $fecha_inicio, $fecha_fin, $personas) {
