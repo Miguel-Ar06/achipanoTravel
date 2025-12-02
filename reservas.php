@@ -27,8 +27,6 @@
                 $hoy = date('Y-m-d');
                 $estatus = '';
                 $class = '';
-                
-
                 //Profe esta parte del Backend es una obra de arte, igual cree la vista de esto mismo pero no es tan elegante como esta solucion, la quiero mucho
                 if ($hoy < $fila['fecha_desde']) {
                     $estatus = 'Pendiente';

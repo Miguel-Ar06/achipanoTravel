@@ -62,4 +62,20 @@ CREATE VIEW ver_reservas AS(
     INNER JOIN tipo_habitaciones th ON hab.id_tipo_habitacion = th.id_tipo_habitacion
     INNER JOIN hoteles h ON th.id_hotel = h.id_hotel
     ORDER BY r.id_reserva DESC
+);
+
+CREATE VIEW ver_reservas_y_su_estado AS(
+    SELECT  r.id_reserva, CONCAT(t.nombre, ' ', t.apellido) as cliente, h.nombre as hotel, th.descripcion as tipo_habitacion,
+    r.fecha_desde, r.fecha_hasta, r.cantidad_personas,  r.monto_total , r.fecha_registro AS fecha_de_creacion,
+    (CASE
+        WHEN r.fecha_desde > CURRENT_DATE() THEN 'Pendiente'
+        WHEN r.fecha_hasta < CURRENT_DATE() THEN 'Cerrado'
+        WHEN r.fecha_desde <= CURRENT_DATE() AND r.fecha_hasta > CURRENT_DATE() THEN 'En Proceso'
+     END ) as Estado
+    FROM reservas r
+    INNER JOIN turistas t ON r.id_turista = t.id_turista
+    INNER JOIN habitaciones hab ON r.id_habitacion = hab.id_habitacion
+    INNER JOIN tipo_habitaciones th ON hab.id_tipo_habitacion = th.id_tipo_habitacion
+    INNER JOIN hoteles h ON th.id_hotel = h.id_hotel
+    ORDER BY r.id_reserva DESC
 )
