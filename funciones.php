@@ -1,24 +1,6 @@
 
 <?php
 
-function verificar_disponibilidad_habitacion($pdo, $id_tipo_habitacion, $fecha_inicio, $fecha_fin) {
-    $sql = "
-        SELECT COUNT(DISTINCT h.id_habitacion) as disponibles
-        FROM habitaciones h
-        WHERE h.id_tipo_habitacion = ?
-        AND h.id_habitacion NOT IN (
-            SELECT dh.id_habitacion 
-            FROM disponibilidad_habitaciones dh 
-            WHERE dh.fecha BETWEEN ? AND DATE_SUB(?, INTERVAL 1 DAY)
-            AND dh.estado = 'reservada'
-        )
-    ";
-    
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$id_tipo_habitacion, $fecha_inicio, $fecha_fin]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result['disponibles'];
-}
 
 function asignar_habitacion_disponible($pdo, $id_tipo_habitacion, $fecha_inicio, $fecha_fin) {
     $sql = "
@@ -51,7 +33,7 @@ function CostoXfechas($pdo, $id_tipo_habitacion, $precio_base, $fecha_inicio, $f
         $stmt->execute([$id_tipo_habitacion, $fecha_compatible]);
         $tarifa = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if(isset($tarifa)){
+        if ($tarifa && isset($tarifa['multiplo_precio'])) {
             $multiplicador = $tarifa['multiplo_precio'];
         } else {
             $multiplicador = 1.0;

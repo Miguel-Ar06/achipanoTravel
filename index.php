@@ -1,4 +1,6 @@
-<?php include 'layout_top.php'; 
+<?php 
+include 'layout_top.php'; 
+
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_reserva'])) {
@@ -13,22 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_reserva']))
         $monto_base = $_POST['monto_calculado'];
         $traslado = floatval($_POST['costo_traslado']);
         $total_final = $monto_base + $traslado;
-        $sql_habitacion = "
-            SELECT h.id_habitacion 
-            FROM habitaciones h
-            WHERE h.id_tipo_habitacion = ?
-            AND h.id_habitacion NOT IN (
-                SELECT dh.id_habitacion 
-                FROM disponibilidad_habitaciones dh 
-                WHERE dh.fecha >= ? AND dh.fecha < ?
-                AND dh.estado = 'reservada'
-            )
-            LIMIT 1
-        ";
-        
-        $stmt_hab = $pdo->prepare($sql_habitacion);
-        $stmt_hab->execute([$id_tipo_habitacion, $entrada, $salida]);
-        $habitacion = $stmt_hab->fetch();
+
+        $habitacion = asignar_habitacion_disponible($pdo, $id_tipo_habitacion, $entrada, $salida);
         
         if (!$habitacion) {
             throw new Exception("No hay habitaciones disponibles para las fechas seleccionadas.");
@@ -66,31 +54,18 @@ if (isset($_POST['calcular_presupuesto'])) {
     if ($noches < 1) $noches = 1;
 
     // query para toda la info de los hoteles, tipos de habitaciones y tarifas que coinciden 
-    $sql = "
-        SELECT 
-            h.nombre as nombre_hotel,
-            h.ubicacion,
-            th.id_tipo_habitacion,
-            th.descripcion as tipo_hab,
-            th.precio_base,
-            th.cantidad_personas,
-            COALESCE(t.multiplo_precio, 1) as multiplicador
-        FROM tipo_habitaciones th
-        JOIN hoteles h ON th.id_hotel = h.id_hotel
-        LEFT JOIN tarifas t ON th.id_tipo_habitacion = t.id_tipo_habitacion 
-            AND t.inicio_temporada <= ? 
-            AND t.fin_temporada >= ?
-        WHERE th.cantidad_personas = ?
-        LIMIT 4
+      $sql = "
+        SELECT h.nombre as nombre_hotel, h.ubicacion, th.id_tipo_habitacion, th.descripcion as tipo_habitacion, th.precio_base, th.cantidad_personas
+        FROM tipo_habitaciones th JOIN hoteles h ON th.id_hotel = h.id_hotel WHERE th.cantidad_personas = ? LIMIT 4
     ";
     
-    // Convertir DateTime a string para la consulta SQL
-    $f_inicio_str = $f_inicio->format('Y-m-d');
-    $f_fin_str = $f_fin->format('Y-m-d');
+
+    $fecha_inicio_compatible = $f_inicio->format('Y-m-d');
+    $fecha_fin_compatible = $f_fin->format('Y-m-d');
    
     // preparamos las consultas pa que no nos inyecten una sqlyuca
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$f_inicio_str, $f_fin_str, $personas]);
+    $stmt->execute([$personas]);
     $opciones = $stmt->fetchAll(PDO::FETCH_ASSOC); // obtenemos todas las habitaciones que coinciden en los hoteles
     
     $sql_disponibilidad = "
@@ -103,12 +78,24 @@ if (isset($_POST['calcular_presupuesto'])) {
             WHERE dh.fecha >= ? AND dh.fecha < ?
             AND dh.estado = 'reservada')";
 
-    $stmt_disp = $pdo->prepare($sql_disponibilidad);
+    $stmt_disponibilidad = $pdo->prepare($sql_disponibilidad);
 
-    // buscar disponibilidad de cada tipo de habitacion de las que coinciden
     foreach ($opciones as $matenme => $opt) {
-        $stmt_disp->execute([$opt['id_tipo_habitacion'], $f_inicio_str, $f_fin_str]);
-        $result = $stmt_disp->fetch(PDO::FETCH_ASSOC);
+        $costo_total = CostoXfechas(
+            $pdo, 
+            $opt['id_tipo_habitacion'], 
+            $opt['precio_base'], 
+            $fecha_inicio_compatible, 
+            $fecha_fin_compatible, 
+            $personas
+        );
+
+        $opciones[$matenme]['costo_total'] = $costo_total; // mrc estoy entrando en la locura q cñ es esto
+        
+        $stmt_disponibilidad->execute([$opt['id_tipo_habitacion'], $fecha_inicio_compatible, $fecha_fin_compatible]);
+        $result = $stmt_disponibilidad->fetch(PDO::FETCH_ASSOC);
+
+
         if (isset($result['disponibles'])) {
             $opciones[$matenme]['disponibles'] = $result['disponibles'];
         } else {
@@ -166,14 +153,14 @@ if (isset($_POST['calcular_presupuesto'])) {
         <h3>Resumen de Solicitud</h3>
         <p><strong>Periodo:</strong> <?= $f_inicio->format('d/m/Y') ?> al <?= $f_fin->format('d/m/Y') ?></p>
         <p><strong>Duración:</strong> <?= $dias ?> Días / <?= $noches ?> Noches</p>
-        <p><strong>Para:</strong> <?= $personas ?> Personas</p>
+        <p><strong>Pax:</strong> <?= $personas ?> Personas</p>
     </div>
 
     <h3>Presupuestos Disponibles (Top 4)</h3>
     <div class="budget-grid">
         <?php foreach ($opciones as $opt): 
-            $precio_unitario = $opt['precio_base'] * $opt['multiplicador']; // multiplicador acorde a temporada
-            $total = ($precio_unitario * $noches) * $personas;
+            // Usar el costo total ya calculado
+            $total = $opt['costo_total'];
             
             if($opt['disponibles'] > 2) {
                 $color_fondo = '#d4edda';
@@ -203,9 +190,22 @@ if (isset($_POST['calcular_presupuesto'])) {
             <hr>
             <p><strong>Habitación:</strong> <?= $opt['tipo_hab'] ?></p>
             <p>Para: <?= $opt['cantidad_personas'] ?> personas</p>
-            <p style="margin-bottom: 0;">Precio base: $<?= number_format($opt['precio_base'], 2) ?></P> 
-            <p style="color: gray; font-size: 0.8rem; margin-top: 0;">(x<?= number_format($opt['multiplicador'],2)?> por temporada)</p>
+            <p>Precio base (por noche): $<?= number_format($opt['precio_base'], 2) ?></p>
             
+            <!-- Mostrar las tarifas aplicadas para transparencia -->
+            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin: 8px 0; font-size: 0.85em;">
+                <strong>Tarifas aplicadas:</strong><br>
+                <?php 
+                $tarifas = obtener_tarifas_por_fechas($pdo, $opt['id_tipo_habitacion'], $fecha_inicio_compatible, $fecha_fin_compatible);
+                if (empty($tarifas)) {
+                    echo "Precio estándar (x1.0) para todas las noches";
+                } else {
+                    foreach ($tarifas as $tarifa) {
+                        echo "• {$tarifa['inicio_temporada']} a {$tarifa['fin_temporada']}: x" . $tarifa['multiplo_precio'] . "<br>";
+                    }
+                }
+                ?>
+            </div>
             
             <div class="price-tag">$<?= number_format($total, 2) ?></div>
             
@@ -215,8 +215,8 @@ if (isset($_POST['calcular_presupuesto'])) {
             <form method="POST" action="">
                 <input type="hidden" name="id_turista" value="<?= $id_turista ?>">
                 <input type="hidden" name="id_tipo_habitacion" value="<?= $opt['id_tipo_habitacion'] ?>">
-                <input type="hidden" name="fecha_desde" value="<?= $f_inicio_str ?>">
-                <input type="hidden" name="fecha_hasta" value="<?= $f_fin_str ?>">
+                <input type="hidden" name="fecha_desde" value="<?= $fecha_inicio_compatible ?>">
+                <input type="hidden" name="fecha_hasta" value="<?= $fecha_fin_compatible ?>">
                 <input type="hidden" name="personas" value="<?= $personas ?>">
                 <input type="hidden" name="monto_calculado" value="<?= $total ?>">
                 
