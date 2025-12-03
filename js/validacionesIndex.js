@@ -1,11 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
-    
+    let fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
+    let fechaFinInput = document.querySelector('input[name="fecha_fin"]');
 
-<<<<<<< HEAD
-    function actualizarHidden() {
-    const checkbox = document.getElementById('CheckboxTranslado');
-    const hidden = document.getElementById('valorCheckbox');
-=======
     fechaInicioInput.addEventListener('change', function() {
         const fechaInicio = this.value;
         const fechaFin = fechaFinInput.value;
@@ -55,6 +51,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }       
     });
 
->>>>>>> main
     
 });
