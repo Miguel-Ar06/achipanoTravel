@@ -132,7 +132,7 @@ if (isset($_POST['calcular_presupuesto'])) {
 <div class="card">
     <h3>1. Datos del Viaje</h3>
     <form method="POST" action="">
-        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:15px;">
+        <div class="form-grid">
             <div class="form-group">
                 <label>Seleccionar Turista</label>
                 <select name="turista_seleccionado" class="form-control" required>
@@ -237,7 +237,7 @@ if (isset($_POST['calcular_presupuesto'])) {
                 <input type="hidden" name="personas" value="<?= $personas ?>">
                 <input type="hidden" name="monto_calculado" value="<?= $total ?>">
                 
-                <div class="form-group" style="background: #f8f9fa; padding:10px; border-radius:5px;">
+                <div class="form-group" style="background: #f8f9fa; padding:10px; padding-bottom: 0px; border-radius:5px; text-align: center;">
                     <label>¿Traslado? (Costo Extra 80$)</label>
                     <input type="checkbox" id="CheckboxTranslado" onchange="actualizarHidden()">
                     <input type="hidden" id="valorCheckbox" name="costo_traslado" value="0">

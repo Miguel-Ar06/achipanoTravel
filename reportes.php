@@ -36,7 +36,7 @@
 
 <div class="card">
     <h3>3. Reservas por Fecha</h3>
-    <form method="GET" style="margin-bottom:15px; display:flex; gap:10px;">
+    <form method="GET" style="margin-bottom:15px; gap:10px;" class="filter-form">
         <input type="date" name="fecha_inicio_filtro" class="form-control" required>
         <input type="date" name="fecha_fin_filtro" class="form-control" required>
         <button type="submit" class="btn btn-primary">Filtrar</button>

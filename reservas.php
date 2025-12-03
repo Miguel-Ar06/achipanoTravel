@@ -5,6 +5,7 @@
 </header>
 
 <div class="card">
+    <div style="overflow-x: auto;">
     <table class="datatable display" style="width:100%">
         <thead>
             <tr>
@@ -56,6 +57,7 @@
             ?>
         </tbody>
     </table>
+    </div>
 </div>
 
 <?php include 'layout_bottom.php'; ?>

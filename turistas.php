@@ -80,7 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crear_turista'])) {
 
 <div class="card">
     <h3>Directorio de Clientes</h3>
-    <table class="datatable display" style="width:100%">
+    <div style="overflow-x: auto;">
+    <table class="datatable display" style="width:100%;">
         <thead>
             <tr>
                 <th>ID</th>
@@ -103,6 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crear_turista'])) {
             ?>
         </tbody>
     </table>
+    </div>
 </div>
 
 <?php include'layout_bottom.php';?>
