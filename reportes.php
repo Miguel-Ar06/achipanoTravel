@@ -6,8 +6,11 @@
 
 <div class="card">
     <h3>1. Hoteles con Mayor Demanda</h3>
-    <table class="display" style="width:100%; border-collapse: collapse;">
-        <tr style="background:#eee; text-align:left;"><th>Hotel</th><th>Total Reservas</th></tr>
+    <table class="datatable display" style="width:100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background:#eee; text-align:left;"><th>Hotel</th><th>Total Reservas</th></tr>
+        </thead>
+        <tbody>
         <?php
         $sql = "SELECT * FROM hoteles_con_mayor_demanda";
         
@@ -16,13 +19,17 @@
             echo "<tr><td style='padding:8px;'>{$r['hotel']}</td><td style='padding:8px;'>{$r['total_reservas']}</td></tr>";
         }
         ?>
+        </tbody>
     </table>
 </div>
 
 <div class="card">
     <h3>2. Clientes Recurrentes (Promociones)</h3>
-    <table class="display" style="width:100%; border-collapse: collapse;">
-        <tr style="background:#eee; text-align:left;"><th>Cliente</th><th>Total Reservas</th><th>Monto Gastado</th></tr>
+    <table class="datatable display" style="width:100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background:#eee; text-align:left;"><th>Cliente</th><th>Total Reservas</th><th>Monto Gastado</th></tr>
+        </thead>
+        <tbody>
         <?php
         $sql = "SELECT * FROM clientes_recurrentes ";
         
@@ -31,6 +38,7 @@
             echo "<tr><td style='padding:8px;'>{$r['cliente']}</td><td style='padding:8px;'>{$r['total_reservas']}</td><td style='padding:8px;'>$ ".number_format($r['monto_gastado'],2)."</td></tr>";
         }
         ?>
+        </tbody>
     </table>
 </div>
 
@@ -43,19 +51,34 @@
     </form>
     
     <?php if(isset($_GET['fecha_inicio_filtro'])): ?>
-        <ul>
         <?php
         $sql = "CALL reservas_X_fechas(?,?)";
-        
+
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$_GET['fecha_inicio_filtro'], $_GET['fecha_fin_filtro']]);
-        while($r = $stmt->fetch()){
-            echo "<li>Reserva #{$r['id_reserva']} - {$r['nombre']} (Registrada: {$r['fecha_registro']})</li>";
-        } if($stmt->rowCount() == 0){
-            echo "<li>No se encontraron reservas en el rango seleccionado.</li>";
-        }
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($rows) === 0) {
+            echo "<div>No se encontraron reservas en el rango seleccionado.</div>";
+        } else {
         ?>
-        </ul>
+        <table class="datatable display" style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background:#eee; text-align:left;"><th>Reserva</th><th>Cliente</th><th>Registrada</th></tr>
+            </thead>
+            <tbody>
+            <?php
+            foreach ($rows as $r) {
+                echo "<tr>";
+                echo "<td style='padding:8px;'>#{$r['id_reserva']}</td>";
+                echo "<td style='padding:8px;'>{$r['nombre']}</td>";
+                echo "<td style='padding:8px;'>{$r['fecha_registro']}</td>";
+                echo "</tr>";
+            }
+            ?>
+            </tbody>
+        </table>
+        <?php } ?>
     <?php endif; ?>
 </div>
 
