@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    
+    let fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
+    let fechaFinInput = document.querySelector('input[name="fecha_fin"]');
 
     fechaInicioInput.addEventListener('change', function() {
         const fechaInicio = this.value;

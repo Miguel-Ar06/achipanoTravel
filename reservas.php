@@ -1,5 +1,22 @@
 <?php include 'layout_top.php'; ?>
 
+<style>
+    /* Un estilo rápido para que el botón se vea bien si no tienes uno definido */
+    .btn-detalle {
+        background-color: #4CAF50; /* Verde agradable */
+        color: white;
+        padding: 5px 10px;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.9em;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-detalle:hover {
+        background-color: #45a049;
+    }
+</style>
+
 <header>
     <h1>Control de Reservas</h1>
 </header>
@@ -17,10 +34,13 @@
                 <th>Total</th>
                 <th>Fecha de Creación</th>
                 <th>Estado</th>
+     
+                <th>Detalles</th>
             </tr>
         </thead>
         <tbody>
             <?php
+
             $sql = " SELECT * FROM ver_reservas ";
             
             $stmt = $pdo->query($sql);
@@ -28,7 +48,7 @@
                 $hoy = date('Y-m-d');
                 $estatus = '';
                 $class = '';
-                //Profe esta parte del Backend es una obra de arte, igual cree la vista de esto mismo pero no es tan elegante como esta solucion, la quiero mucho
+                
                 if ($hoy < $fila['fecha_desde']) {
                     $estatus = 'Pendiente';
                     $class = 'status-pendiente';
@@ -47,11 +67,19 @@
                 echo "<td>Entrada: " . date('d/m/Y', strtotime($fila['fecha_desde'])) . "<br>Salida: " . date('d/m/Y', strtotime($fila['fecha_hasta'])) . "</td>";
                 echo "<td>{$fila['cantidad_personas']}</td>";
                 echo "<td>$ " . number_format($fila['monto_total'], 2) . "</td>";
+                
                 $timestamp = strtotime($fila['fecha_de_creacion']);
                 $fecha = date('d/m/Y', $timestamp);
                 $hora = date('H:i:s', $timestamp);
+                
                 echo "<td>Dia: {$fecha}<br><small>{$hora}</small></td>";
                 echo "<td><span class='status-badge $class'>{$estatus}</span></td>";
+                
+
+                echo "<td>";
+                echo "<a href='VerFactura.php?id_reserva={$fila['id_reserva']}' class='btn-detalle'>Ver Factura</a>";
+                echo "</td>";
+                
                 echo "</tr>";
             }
             ?>

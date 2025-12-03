@@ -78,4 +78,23 @@ CREATE VIEW ver_reservas_y_su_estado AS(
     INNER JOIN tipo_habitaciones th ON hab.id_tipo_habitacion = th.id_tipo_habitacion
     INNER JOIN hoteles h ON th.id_hotel = h.id_hotel
     ORDER BY r.id_reserva DESC
-)
+);
+
+CREATE PROCEDURE serviciosXHotel(
+    IN _id_hotel INT
+)BEGIN
+    SELECT s.descripcion FROM servicios_hoteles sh
+    INNER JOIN hoteles h ON sh.id_hotel = h.id_hotel
+    INNER JOIN servicios s ON sh.id_servicio = s.id_servicio
+    WHERE sh.id_hotel = _id_hotel;
+end;
+
+CREATE PROCEDURE idHotelConidReserva(
+    IN _id_reserva INT
+)BEGIN
+    SELECT th.id_hotel FROM reservas r
+    INNER JOIN habitaciones h ON r.id_habitacion = h.id_habitacion
+    INNER JOIN tipo_habitaciones th ON h.id_tipo_habitacion = th.id_tipo_habitacion
+    WHERE r.id_reserva = _id_reserva
+    LIMIT 1;
+end;
