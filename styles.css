@@ -194,96 +194,29 @@ table.dataTable thead th {
         height: auto;
 }
 
-@media (max-width: 831px){
-    body {
-        flex-direction: column;
-    }
-
-    .sidebar {
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 20px;
-        box-sizing: border-box;
-    }
-
-    .logo-area {
-        margin-bottom: 0;
-        display: flex;
-        align-items: center;
-        text-align: left;
-        gap: 10px;
-    }
-
-    .logo-placeholder {
-        margin: 0;
-        text-align: center;
-        width: 50px;
-        height: 50px;
-        font-size: 1.5rem;
-    }
-    
-    .logo-placeholder img {
-        transform: none !important;
-        width: 100%;
-        height: auto;
-    }
-
-    .logo-area small {
-        display: none;
-    }
-    
-    .logo-area h2 {
-        font-size: 1.2rem;
-        margin: 0;
-    }
-
-    .nav-links {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        margin-top: 10px;
-        gap: 5px;
-        width: 100%;
-    }
-
-    .nav-links li {
-        margin-bottom: 0;
-    }
-
-    .nav-links a {
-        padding: 8px 12px;
-        font-size: 0.9rem;
-        border-radius: 4px;
-    }
-
-
-    .main-content {
-        padding: 15px;
-    }
+.img-hotel{
+    border-radius: 15px;
+    max-height: 15vw;
+    width: auto;
+    margin: 0.5rem;
 }
 
-@media (max-width: 428px){
-    .filter-form {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .filter-form .form-control {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    .filter-form .btn {
-        width: 100%;
-    }
+.galeria{
+    display: flex;
+    overflow-x: auto;
+    
 }
-@media (max-width: 455px) {
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
+
+#fullpage {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: contain;
+  background-repeat: no-repeat no-repeat;
+  background-position: center center;
+  background-color: #000000CC;
 }

@@ -1,5 +1,4 @@
-
-CREATE DATABASE achipano_travel;
+ DATABASE achipano_travel;
 USE achipano_travel;
 
 

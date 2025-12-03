@@ -237,10 +237,9 @@ if (isset($_POST['calcular_presupuesto'])) {
                 <input type="hidden" name="personas" value="<?= $personas ?>">
                 <input type="hidden" name="monto_calculado" value="<?= $total ?>">
                 
-                <div class="form-group" style="background: #f8f9fa; padding:10px; padding-bottom: 0px; border-radius:5px; text-align: center;">
-                    <label>¿Traslado? (Costo Extra 80$)</label>
-                    <input type="checkbox" id="CheckboxTranslado" onchange="actualizarHidden()">
-                    <input type="hidden" id="valorCheckbox" name="costo_traslado" value="0">
+                <div class="form-group" style="background: #f8f9fa; padding:10px; border-radius:5px;">
+                    <label>¿Traslado? (costo extra $)</label>
+                    <input type="number" step="0.01" class="form-control" name="costo_traslado" placeholder="0.00" min="0.00" value="0">
                     
                 <br><br>
                 </div>
