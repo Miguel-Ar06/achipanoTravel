@@ -7,8 +7,11 @@
     
     <script src="js/validacionesIndex.js"></script>
     <script src="js/validacionRegistro.js"></script>
+    <script src="js/html2canvas.min.js"></script>
+
     <script src="js/jspdf.min.js" type="text/javascript"></script>
     <script src="js/GeneradorPdf.js" type="text/javascript"></script>
+    
 
     <script>
         $(document).ready(function() {

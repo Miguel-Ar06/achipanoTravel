@@ -1,4 +1,4 @@
- DATABASE achipano_travel;
+CREATE DATABASE achipano_travel;
 USE achipano_travel;
 
 
@@ -95,14 +95,28 @@ CREATE TABLE disponibilidad_habitaciones (
     CONSTRAINT uq_habitacion_fecha UNIQUE (id_habitacion, fecha)
 );
 
+CREATE TABLE servicios(
+    id_servicio INT PRIMARY KEY AUTO_INCREMENT,
+    descripcion VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE servicios_hoteles(
+    id_servicio_hoteles INT PRIMARY KEY AUTO_INCREMENT,
+    id_hotel INT NOT NULL ,
+    id_servicio INT NOT NULL ,
+
+    CONSTRAINT fk_servicio_hotel
+    FOREIGN KEY (id_servicio) REFERENCES  servicios(id_servicio),
+
+    CONSTRAINT fk_hotel_servicio
+    FOREIGN KEY (id_hotel) REFERENCES hoteles(id_hotel)
+);
+
 ALTER TABLE reservas ADD CONSTRAINT ck_reserva_fecha_hora CHECK (fecha_hasta > fecha_desde);
 
 ALTER TABLE tarifas ADD CONSTRAINT ck_inicio_fin_temporada CHECK (fin_temporada >= inicio_temporada );
 
--- El Misero Trigger
-
-DELIMITER //
-CREATE TRIGGER after_insert_reserva
+CREATE TRIGGER marcar_habitaciones_ocupadas
 AFTER INSERT ON reservas
 FOR EACH ROW
 BEGIN
@@ -117,14 +131,13 @@ BEGIN
         SET fecha_actual = fecha_actual + INTERVAL 1 DAY;
     END WHILE;
 END
-DELIMITER ;
+
 
 
 
 
 -- Ahora los inserts
 
--- Insertar hoteles (ya los tienes con los CALL, pero por si necesitas los INSERT directos)
 INSERT INTO hoteles (nombre, rif, ubicacion) VALUES
 ('Sunsol Punta Blanca', 'J-124765578', 'coche'),
 ('Sunsol Ecoland', 'J-097365518', 'Pedro Gonzalez'),
@@ -201,3 +214,39 @@ INSERT INTO turistas (id_turista, nombre, apellido, telefono, correo, ubicacion)
 ('V 32.274.853', 'Sebastian', 'Martinez', '+584148765432', 'teamoChacin@email.com', 'Valencia'),
 ('V 31.648.782', 'Angel', 'Marin', '+584149876543', 'amarin@gmail.com', 'Unimar - Bienestar Estudiantil'),
 ('V 31.111.111', 'Luis', 'Chacin', '+584143214565', 'luis.platuo@email.com', 'Mi corazon');
+
+INSERT INTO servicios (descripcion) VALUES
+('Desayuno incluido'),
+('Almuerzo incluido'),
+('Cena incluida'),
+('Snack de media tarde'),
+('Bebidas alcohólicas 11am-11pm'),
+('Bebidas no alcohólicas 11am-11pm'),
+('Piscina'),
+('Bar en la piscina'),
+('Gimnasio'),
+('WiFi gratuito'),
+('Actividades recreativas'),
+('Estacionamiento gratuito'),
+('Spa y bienestar');
+
+-- Asignar servicios a cada hotel según sus características reales (SIN traslado)
+
+-- 1. Sunsol Punta Blanca (id_hotel = 1) - Hotel de playa, todo incluido
+INSERT INTO servicios_hoteles (id_hotel, id_servicio) VALUES
+(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (1, 12);
+
+-- 2. Sunsol Ecoland (id_hotel = 2) - Hotel ecológico con menos servicios premium
+INSERT INTO servicios_hoteles (id_hotel, id_servicio) VALUES
+(2, 1), (2, 2), (2, 3), (2, 4), (2, 6), (2, 7), (2, 10), (2, 11), (2, 12);
+-- NOTA: Ecoland no tiene bar, gimnasio ni bebidas alcohólicas (por ser ecológico)
+
+-- 3. Hesperia (id_hotel = 3) - Hotel estándar
+INSERT INTO servicios_hoteles (id_hotel, id_servicio) VALUES
+(3, 1), (3, 6), (3, 7), (3, 9), (3, 10), (3, 12);
+-- NOTA: Hesperia solo incluye desayuno, no incluye almuerzo, cena, snacks ni bebidas alcohólicas
+
+-- 4. Agua Dorada (id_hotel = 4) - Hotel frente a la playa, todo incluido premium
+INSERT INTO servicios_hoteles (id_hotel, id_servicio) VALUES
+(4, 1), (4, 2), (4, 3), (4, 4), (4, 5), (4, 6), (4, 7), (4, 8), (4, 9),
+(4, 10), (4, 11), (4, 12), (4, 13);  -- Agua Dorada incluye SPA (servicio premium)

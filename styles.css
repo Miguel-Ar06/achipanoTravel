@@ -205,3 +205,154 @@ table.dataTable thead th {
   background-position: center center;
   background-color: #000000CC;
 }
+
+/* ... (El resto de tu CSS anterior) ... */
+
+/* =========================================
+   ESTILOS DE FACTURA (CrearFactura.php)
+   ========================================= */
+
+/* Mensaje de Error */
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border-left: 5px solid #721c24;
+}
+
+/* Contenedor Principal de la Factura */
+.invoice-container {
+    max-width: 800px;
+    margin: 0 auto;
+    border: 1px solid var(--border);
+}
+
+/* Encabezado Verde */
+.invoice-header {
+    background-color: var(--primary);
+    padding: 20px;
+    border-radius: 8px 8px 0 0;
+    /* Márgenes negativos para contrarrestar el padding de la tarjeta .card */
+    margin: -20px -20px 20px -20px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--white);
+}
+
+.invoice-title h2 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.invoice-subtitle {
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+/* Logo */
+.invoice-logo-wrapper {
+    padding: 5px;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.invoice-logo-img {
+    width: 100%;
+    height: auto;
+    transform: scale(0.3); /* Mantenemos tu escala original */
+}
+
+/* Cuerpo de la factura */
+.invoice-intro {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.invoice-intro p {
+    font-size: 1.1rem;
+    color: var(--dark);
+}
+
+.invoice-details-box {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+/* Tabla de detalles */
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.invoice-row {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.invoice-cell {
+    padding: 12px;
+}
+
+.invoice-label {
+    font-weight: bold;
+    color: var(--primary-dark);
+    width: 40%;
+}
+
+.invoice-value {
+    color: var(--dark);
+}
+
+/* Sección de Servicios */
+.service-header-row {
+    background-color: #6C757D;
+}
+
+.service-header-cell {
+    padding: 10px;
+    font-weight: bold;
+    color: var(--white);
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+.service-empty {
+    text-align: center;
+    color: #777;
+}
+
+/* Fila de Total */
+.total-row {
+    background-color: rgba(50, 125, 117, 0.1);
+}
+
+.total-label {
+    padding: 15px;
+    font-weight: bold;
+    color: var(--primary-dark);
+    font-size: 1.2rem;
+}
+
+.total-amount {
+    padding: 15px;
+    font-weight: bold;
+    color: var(--primary);
+    font-size: 1.4rem;
+}
+
+/* Botones de acción */
+.invoice-actions {
+    margin-top: 30px;
+    text-align: right;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    margin-right: 10px;
+}

@@ -3,62 +3,7 @@ include 'layout_top.php';
 
 
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_reserva'])) {
-    try {
-        $pdo->beginTransaction();
-        
-        $id_turista = $_POST['id_turista'];
-        $id_tipo_habitacion = $_POST['id_tipo_habitacion'];
-        $entrada = $_POST['fecha_desde'];
-        $salida = $_POST['fecha_hasta'];
-        $personas = $_POST['personas'];
-        $monto_base = $_POST['monto_calculado'];
-        $traslado = floatval($_POST['costo_traslado']);
-        $total_final = $monto_base + $traslado;
 
-        $habitacion = asignar_habitacion_disponible($pdo, $id_tipo_habitacion, $entrada, $salida);
-        
-        if (!$habitacion) {
-            throw new Exception("No hay habitaciones disponibles para las fechas seleccionadas.");
-        }
-
-        $sql = "INSERT INTO reservas (fecha_desde, fecha_hasta, cantidad_personas, monto_total, id_turista, id_habitacion) 
-                VALUES (?, ?, ?, ?, ?, ?)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$entrada, $salida, $personas, $total_final, $id_turista, $habitacion['id_habitacion']]);
-        
-        $id_reserva = $pdo->lastInsertId(); // Obtenemos el ID de la reserva recién creada
-        
-        $pdo->commit();
-        
-        $sql_detalle = "SELECT * FROM ver_reservas_y_su_estado WHERE id_reserva = ?";
-        $stmt_detalle = $pdo->prepare($sql_detalle);
-        $stmt_detalle->execute([$id_reserva]);
-        $detalle_reserva = $stmt_detalle->fetch(PDO::FETCH_ASSOC);
-        echo "<div class='card' style='background:#d4edda; color:#155724;'><h3>¡Reserva Exitosa!</h3><p>Monto Total: $$total_final (Incluye traslado: $$traslado)</p></div>";
-        
-        echo "<div class='card' style='background:#d4edda; color:#155724;'>";
-        echo "<h3>¡Reserva Exitosa!</h3>";
-        echo "<p>Se ha creado la reserva #{$id_reserva} con los siguientes detalles:</p>";
-        echo "<table class='display' style='width:100%; border-collapse: collapse; margin-top: 10px;'>";
-        echo "<tr><th style='text-align:left; padding:8px;'>Campo</th><th style='text-align:left; padding:8px;'>Valor</th></tr>";
-        echo "<tr><td style='padding:8px;'>Cliente</td><td style='padding:8px;'>{$detalle_reserva['cliente']}</td></tr>";
-        echo "<tr><td style='padding:8px;'>Hotel</td><td style='padding:8px;'>{$detalle_reserva['hotel']}</td></tr>";
-        echo "<tr><td style='padding:8px;'>Tipo de Habitación</td><td style='padding:8px;'>{$detalle_reserva['tipo_habitacion']}</td></tr>";
-        echo "<tr><td style='padding:8px;'>Fecha Desde</td><td style='padding:8px;'>{$detalle_reserva['fecha_desde']}</td></tr>";
-        echo "<tr><td style='padding:8px;'>Fecha Hasta</td><td style='padding:8px;'>{$detalle_reserva['fecha_hasta']}</td></tr>";
-        echo "<tr><td style='padding:8px;'>Cantidad de Personas</td><td style='padding:8px;'>{$detalle_reserva['cantidad_personas']}</td></tr>";
-        echo "<tr><td style='padding:8px;'>Monto Total</td><td style='padding:8px;'>$" . number_format($detalle_reserva['monto_total'], 2) . "</td></tr>";
-        echo "<tr><td style='padding:8px;'>Estado</td><td style='padding:8px;'>{$detalle_reserva['Estado']}</td></tr>";
-        echo "</table>";
-        echo "</div>";
-
-
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        echo "<div class='card' style='background:#f8d7da; color:#721c24;'>Error: " . $e->getMessage() . "</div>";
-    }
-}
 
 
 $turistas = $pdo->query("SELECT * FROM turistas")->fetchAll();
@@ -229,7 +174,7 @@ if (isset($_POST['calcular_presupuesto'])) {
             <p><small>Incluye: Desayuno, Almuerzo, Cena, Bebidas, Piscinas...</small></p>
             
             <?php if($puede_reservar): ?>
-            <form method="POST" action="">
+            <form method="POST" action="CrearFactura.php">
                 <input type="hidden" name="id_turista" value="<?= $id_turista ?>">
                 <input type="hidden" name="id_tipo_habitacion" value="<?= $opt['id_tipo_habitacion'] ?>">
                 <input type="hidden" name="fecha_desde" value="<?= $fecha_inicio_compatible ?>">
