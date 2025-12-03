@@ -16,10 +16,14 @@ function asignar_habitacion_disponible($pdo, $id_tipo_habitacion, $fecha_inicio,
 
 function CostoXfechas($pdo, $id_tipo_habitacion, $precio_base, $fecha_inicio, $fecha_fin, $personas) {
     $total = 0;
+    $contador = 0;
     $fecha_actual = new DateTime($fecha_inicio);
+    $fecha_actual->modify('+1 day');
+    
     $fecha_final = new DateTime($fecha_fin);
+    
 
-    while ($fecha_actual < $fecha_final) {
+    while ($fecha_actual <= $fecha_final) {
         $fecha_compatible = $fecha_actual->format('Y-m-d'); // MEDIA HORA DE MI VIDA PERDIDA PQ NO ERA COMPATIBLE SIN ESTA VARIABLE, te amo y odio PHP
         $sql = "SELECT multiplo_precio FROM tarifas WHERE id_tipo_habitacion = ?  AND ? BETWEEN inicio_temporada AND fin_temporada LIMIT 1";
         $stmt = $pdo->prepare($sql);
@@ -33,9 +37,10 @@ function CostoXfechas($pdo, $id_tipo_habitacion, $precio_base, $fecha_inicio, $f
         }
         $total += $precio_base * $multiplicador;
         $fecha_actual->modify('+1 day');
-    }
-    
+        $contador+=1;
 
+
+    }
     return $total * $personas;
 }
 
